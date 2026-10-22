@@ -1,0 +1,264 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with role authorization",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["HM", "AHM", "AT"] },
+        "teacherId": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Teacher": {
+      "title": "Teacher",
+      "description": "Teacher Master record",
+      "type": "object",
+      "properties": {
+        "teacherId": { "type": "string" },
+        "name": { "type": "string" },
+        "designation": { "type": "string" },
+        "employeeCode": { "type": "string" },
+        "mobile": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "subjects": { "type": "string" },
+        "eligibleClasses": { "type": "string" },
+        "dateOfJoining": { "type": "string" },
+        "status": { "type": "string", "enum": ["Active", "Inactive", "On Leave", "Retired"] },
+        "role": { "type": "string", "enum": ["HM", "AHM", "AT"] },
+        "active": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["teacherId", "name", "employeeCode", "role", "active"]
+    },
+    "PermanentRoutine": {
+      "title": "PermanentRoutine",
+      "description": "Weekly master school schedule entry",
+      "type": "object",
+      "properties": {
+        "day": { "type": "string", "enum": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] },
+        "periodNumber": { "type": "number" },
+        "classId": { "type": "string" },
+        "sectionOrStream": { "type": "string" },
+        "subject": { "type": "string" },
+        "teacherId": { "type": "string" },
+        "teacherName": { "type": "string" },
+        "room": { "type": "string" },
+        "academicSession": { "type": "string" },
+        "remarks": { "type": "string" }
+      },
+      "required": ["day", "periodNumber", "classId", "sectionOrStream", "subject", "teacherId"]
+    },
+    "ProvisionalArrangement": {
+      "title": "ProvisionalArrangement",
+      "description": "Daily temporary routine adjustment or substitution without overwriting permanent routine",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string" },
+        "periodNumber": { "type": "number" },
+        "classId": { "type": "string" },
+        "sectionOrStream": { "type": "string" },
+        "originalTeacherId": { "type": "string" },
+        "originalTeacherName": { "type": "string" },
+        "replacementTeacherId": { "type": "string" },
+        "replacementTeacherName": { "type": "string" },
+        "temporaryRoom": { "type": "string" },
+        "arrangementType": {
+          "type": "string",
+          "enum": [
+            "Substitute teacher",
+            "Temporary merging of classes",
+            "Period shifted to another time",
+            "Room changed",
+            "Class cancelled",
+            "Joint teaching",
+            "Special class",
+            "Free period",
+            "Other"
+          ]
+        },
+        "instructions": { "type": "string" },
+        "reason": { "type": "string" },
+        "status": { "type": "string", "enum": ["Draft", "Published", "Updated", "Cancelled", "Completed"] },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "publishedAt": { "type": "string" }
+      },
+      "required": ["date", "periodNumber", "classId", "sectionOrStream", "arrangementType", "status", "createdBy"]
+    },
+    "MergedClass": {
+      "title": "MergedClass",
+      "description": "Record of temporarily merged classes/sections",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string" },
+        "periodNumber": { "type": "number" },
+        "mergedClasses": { "type": "string" },
+        "subject": { "type": "string" },
+        "teacherId": { "type": "string" },
+        "teacherName": { "type": "string" },
+        "classroom": { "type": "string" },
+        "reason": { "type": "string" },
+        "instructions": { "type": "string" },
+        "status": { "type": "string", "enum": ["Scheduled", "Completed", "Cancelled"] },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["date", "periodNumber", "mergedClasses", "subject", "teacherId", "classroom", "createdBy"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Official communication and urgent instructions from HM to teachers",
+      "type": "object",
+      "properties": {
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "senderRole": { "type": "string" },
+        "recipientType": { "type": "string", "enum": ["All Teachers", "Individual", "Subject Group", "Class Teachers"] },
+        "recipientIds": { "type": "string" },
+        "subject": { "type": "string" },
+        "body": { "type": "string" },
+        "priority": { "type": "string", "enum": ["Normal", "Urgent", "Emergency"] },
+        "category": {
+          "type": "string",
+          "enum": [
+            "General notice",
+            "Urgent instruction",
+            "Provisional routine",
+            "Substitute assignment",
+            "Meeting notice",
+            "Examination duty",
+            "Leave decision",
+            "Emergency announcement"
+          ]
+        },
+        "requiresAck": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["senderId", "senderName", "subject", "body", "priority", "category"]
+    },
+    "MessageAcknowledgement": {
+      "title": "MessageAcknowledgement",
+      "description": "Teacher acknowledgement of an official instruction",
+      "type": "object",
+      "properties": {
+        "messageId": { "type": "string" },
+        "teacherId": { "type": "string" },
+        "teacherName": { "type": "string" },
+        "acknowledgedAt": { "type": "string" },
+        "note": { "type": "string" }
+      },
+      "required": ["messageId", "teacherId", "acknowledgedAt"]
+    },
+    "AttendanceRecord": {
+      "title": "AttendanceRecord",
+      "description": "Daily teacher attendance record",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string" },
+        "teacherId": { "type": "string" },
+        "teacherName": { "type": "string" },
+        "status": { "type": "string", "enum": ["Present", "Absent", "Approved Leave", "Official Duty", "Late Arrival", "Half Day"] },
+        "timeIn": { "type": "string" },
+        "remarks": { "type": "string" },
+        "recordedBy": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["date", "teacherId", "status", "recordedBy"]
+    },
+    "LeaveApplication": {
+      "title": "LeaveApplication",
+      "description": "Teacher leave application and HM approval workflow",
+      "type": "object",
+      "properties": {
+        "teacherId": { "type": "string" },
+        "teacherName": { "type": "string" },
+        "startDate": { "type": "string" },
+        "endDate": { "type": "string" },
+        "leaveType": { "type": "string", "enum": ["Casual Leave", "Medical Leave", "Duty Leave", "Maternity Leave", "Other"] },
+        "reason": { "type": "string" },
+        "status": { "type": "string", "enum": ["Pending", "Approved", "Rejected", "Clarification Requested"] },
+        "appliedAt": { "type": "string" },
+        "reviewedBy": { "type": "string" },
+        "reviewedAt": { "type": "string" },
+        "reviewRemarks": { "type": "string" }
+      },
+      "required": ["teacherId", "startDate", "endDate", "leaveType", "reason", "status", "appliedAt"]
+    },
+    "SchoolNotice": {
+      "title": "SchoolNotice",
+      "description": "Public school circular or notice board item",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "priority": { "type": "string", "enum": ["Low", "Normal", "High"] },
+        "publishedBy": { "type": "string" },
+        "publishedAt": { "type": "string" }
+      },
+      "required": ["title", "content", "publishedBy", "publishedAt"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Administrative actions audit trail",
+      "type": "object",
+      "properties": {
+        "action": { "type": "string" },
+        "performedBy": { "type": "string" },
+        "details": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["action", "performedBy", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "entities/User" },
+      "description": "User profiles and credentials"
+    },
+    "/teachers/{teacherId}": {
+      "schema": { "$ref": "entities/Teacher" },
+      "description": "Teacher master registry"
+    },
+    "/permanentRoutines/{routineId}": {
+      "schema": { "$ref": "entities/PermanentRoutine" },
+      "description": "School master timetable entries"
+    },
+    "/provisionalArrangements/{arrangementId}": {
+      "schema": { "$ref": "entities/ProvisionalArrangement" },
+      "description": "Temporary class routines, substitutions, and schedule changes"
+    },
+    "/mergedClasses/{mergedId}": {
+      "schema": { "$ref": "entities/MergedClass" },
+      "description": "Classes merged together"
+    },
+    "/messages/{messageId}": {
+      "schema": { "$ref": "entities/Message" },
+      "description": "Official announcements, notices, and instructions"
+    },
+    "/messageAcknowledgements/{ackId}": {
+      "schema": { "$ref": "entities/MessageAcknowledgement" },
+      "description": "Acknowledgements from teachers for messages"
+    },
+    "/attendance/{attendanceId}": {
+      "schema": { "$ref": "entities/AttendanceRecord" },
+      "description": "Daily teacher attendance logs"
+    },
+    "/leaveApplications/{leaveId}": {
+      "schema": { "$ref": "entities/LeaveApplication" },
+      "description": "Teacher leave requests and resolutions"
+    },
+    "/schoolNotices/{noticeId}": {
+      "schema": { "$ref": "entities/SchoolNotice" },
+      "description": "School board notices"
+    },
+    "/auditLogs/{logId}": {
+      "schema": { "$ref": "entities/AuditLog" },
+      "description": "Administrative action history"
+    }
+  }
+}

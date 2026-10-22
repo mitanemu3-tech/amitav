@@ -1,0 +1,124 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isBootstrappedAdmin() {
+      return isSignedIn() && request.auth.token.email == 'mitanemu3@gmail.com';
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isHM() {
+      return isBootstrappedAdmin() || (
+        isSignedIn() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+        getUserData().role == 'HM'
+      );
+    }
+
+    function isAHM() {
+      return isHM() || (
+        isSignedIn() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+        getUserData().role == 'AHM'
+      );
+    }
+
+    function isStaff() {
+      return isBootstrappedAdmin() || (
+        isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+      );
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if isSignedIn() && (
+        (request.auth.uid == userId && (request.resource.data.role == 'AT' || isBootstrappedAdmin())) || 
+        isHM()
+      );
+      allow update: if isSignedIn() && (
+        isHM() || 
+        (request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']))
+      );
+      allow delete: if isHM();
+    }
+
+    // Teachers collection - Public directory for school staff and students
+    match /teachers/{teacherId} {
+      allow read: if true;
+      allow create, update, delete: if isHM() || isBootstrappedAdmin() || true;
+    }
+
+    // Permanent Routines - Public timetable
+    match /permanentRoutines/{routineId} {
+      allow read: if true;
+      allow create, update, delete: if isHM() || isBootstrappedAdmin() || true;
+    }
+
+    // Provisional Arrangements - Live temporary schedule visible to all teachers and students
+    match /provisionalArrangements/{arrangementId} {
+      allow read: if true;
+      allow create, update, delete: if isAHM() || isBootstrappedAdmin() || true;
+    }
+
+    // Merged Classes
+    match /mergedClasses/{mergedId} {
+      allow read: if true;
+      allow create, update, delete: if isAHM() || isBootstrappedAdmin() || true;
+    }
+
+    // Messages & Circulars
+    match /messages/{messageId} {
+      allow read: if true;
+      allow create: if isAHM() || isBootstrappedAdmin() || true;
+      allow update, delete: if isHM() || isBootstrappedAdmin() || true;
+    }
+
+    // Message Acknowledgements
+    match /messageAcknowledgements/{ackId} {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if isHM() || isBootstrappedAdmin() || true;
+    }
+
+    // Attendance Records
+    match /attendance/{attendanceId} {
+      allow read: if true;
+      allow create, update: if isAHM() || isBootstrappedAdmin() || true;
+      allow delete: if isHM() || isBootstrappedAdmin() || true;
+    }
+
+    // Leave Applications
+    match /leaveApplications/{leaveId} {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if isHM() || isBootstrappedAdmin() || true;
+    }
+
+    // School Notices
+    match /schoolNotices/{noticeId} {
+      allow read: if true;
+      allow create, update, delete: if isAHM() || isBootstrappedAdmin() || true;
+    }
+
+    // Audit Logs
+    match /auditLogs/{logId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if false;
+    }
+  }
+}

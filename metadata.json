@@ -1,0 +1,7 @@
+{
+  "name": "Nirbhoypur B. G. Nikshaniketan – School Management System",
+  "description": "School management system for Nirbhoypur B. G. Nikshaniketan (H.S.) managing teachers, routines, provisional arrangements, substitutions, merged classes, messages, and attendance.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
